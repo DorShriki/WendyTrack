@@ -15,6 +15,7 @@ const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR
 
 // Global Variables
 let chartInstance = null;
+let timeChartInstance = null;
 let allData = []; // Will hold the parsed CSV data
 
 // DOM Elements
@@ -92,11 +93,19 @@ function parseCSV(csvText) {
                 // Ensure Date resolves correctly [Day, Month, Year] -> YYYY-MM-DD
                 const isoDateStr = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
+                const timeStr = row[1].replace(/"/g, '').trim();
+                let timeDecimal = null;
+                if (timeStr && timeStr.includes(':')) {
+                    const [hours, minutes] = timeStr.split(':');
+                    timeDecimal = parseInt(hours, 10) + (parseInt(minutes, 10) / 60);
+                }
+
                 data.push({
                     dateStr: row[0].replace(/"/g, '').trim(),
                     isoDate: isoDateStr,
                     timestamp: new Date(isoDateStr).getTime(), // Used for sorting/filtering
-                    time: row[1].replace(/"/g, '').trim(),
+                    time: timeStr,
+                    timeDecimal: timeDecimal,
                     action: row[2].replace(/"/g, '').trim()
                 });
             }
@@ -150,8 +159,9 @@ function updateDashboard(data) {
     updateMetricCard(els.food, actionTotals['אוכל'], uniqueDaysCount);
     updateMetricCard(els.walk, actionTotals['טיול'], uniqueDaysCount);
 
-    // Update Chart
+    // Update Charts
     renderChart(dailyStats);
+    renderTimeChart(filteredData);
 }
 
 function updateMetricCard(elements, total, daysCount) {
@@ -263,6 +273,113 @@ function renderChart(dailyStats) {
                     },
                     ticks: {
                         stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
+// ============================================================================
+// Time of Day Chart Rendering (Scatter Plot)
+// ============================================================================
+function renderTimeChart(filteredData) {
+    const ctx = document.getElementById('timeChart').getContext('2d');
+
+    // Group events for scatter plot
+    // Each dataset needs { x: Date(string), y: time value (0-24) }
+    const datasets = {
+        'קקי': [],
+        'פיפי': [],
+        'אוכל': [],
+        'טיול': []
+    };
+
+    filteredData.forEach(item => {
+        // Exclude items with invalid time parsed
+        if (item.timeDecimal !== null && datasets[item.action]) {
+            datasets[item.action].push({
+                x: item.dateStr,
+                y: item.timeDecimal
+            });
+        }
+    });
+
+    const colors = {
+        'קקי': '#8b5a2b',
+        'פיפי': '#eab308',
+        'אוכל': '#f97316',
+        'טיול': '#10b981'
+    };
+
+    if (timeChartInstance) {
+        timeChartInstance.destroy();
+    }
+
+    timeChartInstance = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: Object.keys(datasets).map(action => ({
+                label: action,
+                data: datasets[action],
+                backgroundColor: colors[action],
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }))
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'category', // Use categories to align dates nicely
+                    labels: [...new Set(filteredData.map(item => item.dateStr))], // Unique dates as categories
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.05)',
+                        drawBorder: false
+                    }
+                },
+                y: {
+                    min: 0,
+                    max: 24,
+                    reverse: true, // Put 00:00 (midnight) at top, 24:00 at bottom
+                    ticks: {
+                        stepSize: 2,
+                        callback: function (value) {
+                            const hours = Math.floor(value);
+                            const mins = Math.round((value - hours) * 60);
+                            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        drawBorder: false
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const action = context.dataset.label;
+                            const yVal = context.raw.y;
+                            const hours = Math.floor(yVal);
+                            const mins = Math.round((yVal - hours) * 60);
+                            const timeFormatted = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+                            return `${action} at ${timeFormatted}`;
+                        }
+                    },
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleFont: { size: 14, family: "'Outfit', sans-serif" },
+                    bodyFont: { size: 13, family: "'Outfit', sans-serif" },
+                    padding: 12,
+                    cornerRadius: 8,
+                },
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20
                     }
                 }
             }

@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WendyTrack Dashboard</title>
-    
+
     <!-- Google Fonts: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -52,7 +54,7 @@
                     <small>Total: <span id="total-poop">0</span></small>
                 </div>
             </div>
-            
+
             <div class="card glass-panel metric-card">
                 <div class="icon pee">🚰</div>
                 <div class="metric-info">
@@ -91,6 +93,16 @@
             </div>
         </section>
 
+        <section class="charts glass-panel">
+            <div class="chart-header">
+                <h2>Time of Day Analysis</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">What time events occurred</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="timeChart"></canvas>
+            </div>
+        </section>
+
         <footer>
             <p>WendyTrack Dashboard &copy; 2026</p>
         </footer>
@@ -99,4 +111,5 @@
     <!-- Application Logic -->
     <script src="app.js"></script>
 </body>
+
 </html>
