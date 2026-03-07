@@ -33,7 +33,20 @@ To write to a Google Sheet programmatically without a complex OAuth pop-up, we u
 
 ---
 
-## Step 2: Environment Variables
+## Step 2: Publish Your Sheet for the Dashboard
+
+To allow the static GitHub Pages dashboard to securely read your data without a backend server, we use Google's "Publish to Web" CSV feature.
+
+1. In your Google Spreadsheet, click **File** > **Share** > **Publish to web**.
+2. Under "Link", change "Entire Document" to the specific sheet (e.g., "Sheet1").
+3. Change "Web page" to **Comma-separated values (.csv)**.
+4. Click **Publish**. 
+5. Copy the generated URL.
+6. Open `docs/app.js` in this project, and paste that URL into the `GOOGLE_SHEET_CSV_URL` variable at the very top of the file!
+
+---
+
+## Step 3: Environment Variables
 
 1. Copy `.env.example` to a new file named `.env`.
    ```bash
@@ -46,7 +59,7 @@ To write to a Google Sheet programmatically without a complex OAuth pop-up, we u
 
 ---
 
-## Step 3: Finding the WhatsApp Group ID
+## Step 4: Finding the WhatsApp Group ID
 
 First, run the bot to authenticate and connect to WhatsApp.
 
@@ -67,7 +80,7 @@ First, run the bot to authenticate and connect to WhatsApp.
 
 ---
 
-## Step 4: Running the Bot
+## Step 5: Running the Bot
 Once everything is populated in `.env`, just run it again! The session is saved via `LocalAuth`, so you rarely have to scan the QR code again.
 
 ```bash

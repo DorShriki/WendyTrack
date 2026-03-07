@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WendyTrack Dashboard</title>
+    
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐶 WendyTrack</h1>
+            <p>Live Activity Monitoring Dashboard</p>
+        </header>
+
+        <!-- Setup instructions for the user if URL is missing -->
+        <div id="setup-warning" class="card warning hidden">
+            <h2>⚠️ Missing Google Sheets CSV Link</h2>
+            <p>Please add your Google Sheet CSV "Publish to Web" URL to the <code>app.js</code> file.</p>
+        </div>
+
+        <!-- Controls -->
+        <section class="controls glass-panel">
+            <div class="filter-group">
+                <label for="time-filter">Timeframe:</label>
+                <select id="time-filter">
+                    <option value="7">Last 7 Days</option>
+                    <option value="14">Last 14 Days</option>
+                    <option value="30">Last 30 Days</option>
+                    <option value="all">All Time</option>
+                </select>
+            </div>
+            <button id="refresh-btn" class="btn">🔄 Refresh Data</button>
+        </section>
+
+        <!-- Analytics Metrics -->
+        <section class="metrics">
+            <div class="card glass-panel metric-card">
+                <div class="icon poop">💩</div>
+                <div class="metric-info">
+                    <h3>קקי</h3>
+                    <p class="avg-stat"><span id="avg-poop">0</span> / day</p>
+                    <small>Total: <span id="total-poop">0</span></small>
+                </div>
+            </div>
+            
+            <div class="card glass-panel metric-card">
+                <div class="icon pee">🚰</div>
+                <div class="metric-info">
+                    <h3>פיפי</h3>
+                    <p class="avg-stat"><span id="avg-pee">0</span> / day</p>
+                    <small>Total: <span id="total-pee">0</span></small>
+                </div>
+            </div>
+
+            <div class="card glass-panel metric-card">
+                <div class="icon food">🦴</div>
+                <div class="metric-info">
+                    <h3>אוכל</h3>
+                    <p class="avg-stat"><span id="avg-food">0</span> / day</p>
+                    <small>Total: <span id="total-food">0</span></small>
+                </div>
+            </div>
+
+            <div class="card glass-panel metric-card">
+                <div class="icon walk">🦮</div>
+                <div class="metric-info">
+                    <h3>טיול</h3>
+                    <p class="avg-stat"><span id="avg-walk">0</span> / day</p>
+                    <small>Total: <span id="total-walk">0</span></small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts -->
+        <section class="charts glass-panel">
+            <div class="chart-header">
+                <h2>Activity Timeline</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </section>
+
+        <footer>
+            <p>WendyTrack Dashboard &copy; 2026</p>
+        </footer>
+    </div>
+
+    <!-- Application Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
