@@ -11,7 +11,7 @@
 // 2. Click File > Share > Publish to web
 // 3. Link -> Entire Document -> Comma-separated values (.csv)
 // 4. Click Publish and paste the link below:
-const GOOGLE_SHEET_CSV_URL = ''; // <-- PASTE URL HERE
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRndYhMdzPabGCTLneqVebw9r0II-iPdNWuSJG02VFiPneHotbX6WKWq3q3l6QmBfmdfvVV-OzS1kcj/pub?output=csv'; // <-- PASTE URL HERE
 
 // Global Variables
 let chartInstance = null;
