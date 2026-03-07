@@ -4,7 +4,8 @@
   "description": "WhatsApp to Google Sheets puppy tracker",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "web": "npx -y http-server docs -c-1 -p 8080"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
