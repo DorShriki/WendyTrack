@@ -104,15 +104,21 @@ function parseCSV(csvText) {
 
                 const timeStr = row[1].replace(/"/g, '').trim();
                 let timeDecimal = null;
+                let fullTimestamp = new Date(isoDateStr).getTime();
+
                 if (timeStr && timeStr.includes(':')) {
                     const [hours, minutes] = timeStr.split(':');
                     timeDecimal = parseInt(hours, 10) + (parseInt(minutes, 10) / 60);
+
+                    const h = hours.padStart(2, '0');
+                    const m = minutes.padStart(2, '0');
+                    fullTimestamp = new Date(`${isoDateStr}T${h}:${m}:00`).getTime();
                 }
 
                 data.push({
                     dateStr: row[0].replace(/"/g, '').trim(),
                     isoDate: isoDateStr,
-                    timestamp: new Date(isoDateStr).getTime(), // Used for sorting/filtering
+                    timestamp: fullTimestamp, // Full Date + Time for accurate differences
                     time: timeStr,
                     timeDecimal: timeDecimal,
                     action: row[2].replace(/"/g, '').trim()
