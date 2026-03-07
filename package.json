@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "clean": "pkill -f Chrome || pkill -f Chromium || true",
+    "clean": "pkill -f 'Chromium.*--user-data-dir=.*/\\.wwebjs_auth/session' || true",
     "start:force": "npm run clean && node index.js",
     "web": "npx -y http-server docs -c-1 -p 8080"
   },
