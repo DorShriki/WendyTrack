@@ -27,7 +27,9 @@ const setupWarning = document.getElementById('setup-warning');
 const insights = {
     mealToPoop: document.getElementById('insight-meal-poop'),
     commonPoop: document.getElementById('insight-common-poop'),
-    commonPee: document.getElementById('insight-common-pee')
+    commonPee: document.getElementById('insight-common-pee'),
+    tripPee: document.getElementById('insight-trip-pee'),
+    tripPoop: document.getElementById('insight-trip-poop')
 };
 
 // Metric Elements
@@ -323,10 +325,45 @@ function calculateInsights(filteredData) {
             ? `~${hours}h ${mins}m after eating`
             : `~${mins}m after eating`;
     } else {
-        insights.mealToPoop.innerText = "Not enough contiguous data";
+        insights.mealToPoop.innerText = "No data available";
     }
 
-    // 2. Typical Times
+    // 2. Trip Efficiency (Walk to Potty)
+    let tripToPeeGaps = [];
+    let tripToPoopGaps = [];
+    let lastWalkTime = null;
+
+    filteredData.forEach(item => {
+        if (item.action === 'טיול') {
+            lastWalkTime = item.timestamp;
+        } else if ((item.action === 'פיפי' || item.action === 'קקי') && lastWalkTime !== null) {
+            const diffMs = item.timestamp - lastWalkTime;
+            const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+            // Assume the walk "trip" only lasts 15 minutes.
+            // If the activity happened within 15 mins of the walk starting, it occurred ON the trip.
+            if (diffMinutes >= 0 && diffMinutes <= 15) {
+                if (item.action === 'פיפי') tripToPeeGaps.push(diffMinutes);
+                if (item.action === 'קקי') tripToPoopGaps.push(diffMinutes);
+            }
+        }
+    });
+
+    if (tripToPeeGaps.length > 0) {
+        const avgPeeGap = Math.round(tripToPeeGaps.reduce((sum, val) => sum + val, 0) / tripToPeeGaps.length);
+        insights.tripPee.innerText = `~${avgPeeGap} mins into walk`;
+    } else {
+        insights.tripPee.innerText = "No data available";
+    }
+
+    if (tripToPoopGaps.length > 0) {
+        const avgPoopGap = Math.round(tripToPoopGaps.reduce((sum, val) => sum + val, 0) / tripToPoopGaps.length);
+        insights.tripPoop.innerText = `~${avgPoopGap} mins into walk`;
+    } else {
+        insights.tripPoop.innerText = "No data available";
+    }
+
+    // 3. Typical Times
     function getMostCommonHour(actionName) {
         const hourBins = new Array(24).fill(0);
 
