@@ -23,6 +23,13 @@ const timeFilter = document.getElementById('time-filter');
 const refreshBtn = document.getElementById('refresh-btn');
 const setupWarning = document.getElementById('setup-warning');
 
+// Insight Elements
+const insights = {
+    mealToPoop: document.getElementById('insight-meal-poop'),
+    commonPoop: document.getElementById('insight-common-poop'),
+    commonPee: document.getElementById('insight-common-pee')
+};
+
 // Metric Elements
 const els = {
     poop: { total: document.getElementById('total-poop'), avg: document.getElementById('avg-poop') },
@@ -159,6 +166,9 @@ function updateDashboard(data) {
     updateMetricCard(els.food, actionTotals['אוכל'], uniqueDaysCount);
     updateMetricCard(els.walk, actionTotals['טיול'], uniqueDaysCount);
 
+    // Calculate Smart Insights
+    calculateInsights(filteredData);
+
     // Update Charts
     renderChart(dailyStats);
     renderTimeChart(filteredData);
@@ -281,29 +291,27 @@ function renderChart(dailyStats) {
 }
 
 // ============================================================================
-// Time of Day Chart Rendering (Scatter Plot)
+// Time Distribution Chart (Histogram)
 // ============================================================================
 function renderTimeChart(filteredData) {
     const ctx = document.getElementById('timeChart').getContext('2d');
 
-    // Group events for scatter plot
-    // Each dataset needs { x: Date(string), y: time value (0-24) }
-    const datasets = {
-        'קקי': [],
-        'פיפי': [],
-        'אוכל': [],
-        'טיול': []
+    // Group events into 24-hour bins for a histogram
+    const hourlyBins = {
+        'קקי': new Array(24).fill(0),
+        'פיפי': new Array(24).fill(0),
+        'אוכל': new Array(24).fill(0),
+        'טיול': new Array(24).fill(0)
     };
 
     filteredData.forEach(item => {
-        // Exclude items with invalid time parsed
-        if (item.timeDecimal !== null && datasets[item.action]) {
-            datasets[item.action].push({
-                x: item.dateStr,
-                y: item.timeDecimal
-            });
+        if (item.timeDecimal !== null && hourlyBins[item.action]) {
+            const hour = Math.floor(item.timeDecimal);
+            hourlyBins[item.action][hour]++;
         }
     });
+
+    const labels = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
 
     const colors = {
         'קקי': '#8b5a2b',
@@ -317,58 +325,65 @@ function renderTimeChart(filteredData) {
     }
 
     timeChartInstance = new Chart(ctx, {
-        type: 'scatter',
+        type: 'bar',
         data: {
-            datasets: Object.keys(datasets).map(action => ({
-                label: action,
-                data: datasets[action],
-                backgroundColor: colors[action],
-                pointRadius: 6,
-                pointHoverRadius: 8
-            }))
+            labels: labels,
+            datasets: [
+                {
+                    label: 'קקי 💩',
+                    data: hourlyBins['קקי'],
+                    backgroundColor: colors['קקי'],
+                    borderRadius: 4
+                },
+                {
+                    label: 'פיפי 🚰',
+                    data: hourlyBins['פיפי'],
+                    backgroundColor: colors['פיפי'],
+                    borderRadius: 4
+                },
+                {
+                    label: 'אוכל 🦴',
+                    data: hourlyBins['אוכל'],
+                    backgroundColor: colors['אוכל'],
+                    borderRadius: 4
+                },
+                {
+                    label: 'טיול 🦮',
+                    data: hourlyBins['טיול'],
+                    backgroundColor: colors['טיול'],
+                    borderRadius: 4
+                }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
             scales: {
                 x: {
-                    type: 'category', // Use categories to align dates nicely
-                    labels: [...new Set(filteredData.map(item => item.dateStr))], // Unique dates as categories
+                    stacked: true,
                     grid: {
                         color: 'rgba(255, 255, 255, 0.05)',
                         drawBorder: false
                     }
                 },
                 y: {
-                    min: 0,
-                    max: 24,
-                    reverse: true, // Put 00:00 (midnight) at top, 24:00 at bottom
+                    stacked: true,
+                    beginAtZero: true,
                     ticks: {
-                        stepSize: 2,
-                        callback: function (value) {
-                            const hours = Math.floor(value);
-                            const mins = Math.round((value - hours) * 60);
-                            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-                        }
+                        stepSize: 1
                     },
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.1)',
+                        color: 'rgba(255, 255, 255, 0.05)',
                         drawBorder: false
                     }
                 }
             },
             plugins: {
                 tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            const action = context.dataset.label;
-                            const yVal = context.raw.y;
-                            const hours = Math.floor(yVal);
-                            const mins = Math.round((yVal - hours) * 60);
-                            const timeFormatted = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-                            return `${action} at ${timeFormatted}`;
-                        }
-                    },
                     backgroundColor: 'rgba(15, 23, 42, 0.9)',
                     titleFont: { size: 14, family: "'Outfit', sans-serif" },
                     bodyFont: { size: 13, family: "'Outfit', sans-serif" },

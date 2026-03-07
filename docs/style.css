@@ -1,18 +1,22 @@
 /* ==========================================================================
    CSS Variables & Theme
    ========================================================================== */
-   :root {
+:root {
     --bg-dark: #0f172a;
     --bg-card: rgba(30, 41, 59, 0.7);
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
     --primary-color: #3b82f6;
-    
+
     /* Activity Colors */
-    --color-poop: #8b5a2b;  /* Brown */
-    --color-pee: #eab308;   /* Yellow */
-    --color-food: #f97316;  /* Orange */
-    --color-walk: #10b981;  /* Green */
+    --color-poop: #8b5a2b;
+    /* Brown */
+    --color-pee: #eab308;
+    /* Yellow */
+    --color-food: #f97316;
+    /* Orange */
+    --color-walk: #10b981;
+    /* Green */
 
     --border-radius: 16px;
     --glass-border: 1px solid rgba(255, 255, 255, 0.1);
@@ -34,7 +38,7 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
-    background-image: 
+    background-image:
         radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
         radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
     background-attachment: fixed;
@@ -199,6 +203,56 @@ select:focus {
 }
 
 /* ==========================================================================
+   Smart Insights
+   ========================================================================== */
+.insights {
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.highlight-card {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    gap: 1.2rem;
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--border-radius);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.highlight-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+}
+
+.insight-icon {
+    font-size: 2.2rem;
+    padding: 0.8rem;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 50%;
+}
+
+.insight-text h4 {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+}
+
+.insight-text p {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* ==========================================================================
    Charts Area
    ========================================================================== */
 .charts {
@@ -230,8 +284,15 @@ footer {
    Animations & Responsiveness
    ========================================================================== */
 @keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @media (max-width: 768px) {
@@ -240,7 +301,7 @@ footer {
         gap: 1rem;
         align-items: stretch;
     }
-    
+
     .filter-group {
         justify-content: space-between;
     }
