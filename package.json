@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "clean": "pkill -f 'Chromium.*--user-data-dir=.*/\\.wwebjs_auth/session' || true",
+    "clean": "pkill -f '.wwebjs_auth/session' || true; rm -rf .wwebjs_auth/session/Singleton*",
     "start:force": "npm run clean && node index.js",
     "web": "npx -y http-server docs -c-1 -p 8080"
   },
