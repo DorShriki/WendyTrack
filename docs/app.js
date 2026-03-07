@@ -291,6 +291,65 @@ function renderChart(dailyStats) {
 }
 
 // ============================================================================
+// Smart Insights Engine
+// ============================================================================
+function calculateInsights(filteredData) {
+    if (filteredData.length === 0) return;
+
+    // 1. Meal to Poop Correlation
+    let mealToPoopGaps = []; // Minutes
+    let lastMealTime = null;
+
+    filteredData.forEach(item => {
+        if (item.action === 'אוכל') {
+            lastMealTime = item.timestamp;
+        } else if (item.action === 'קקי' && lastMealTime !== null) {
+            const diffMs = item.timestamp - lastMealTime;
+            const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+            // Only consider it related if the poop happened within 12 hours of the meal
+            if (diffMinutes > 0 && diffMinutes < (12 * 60)) {
+                mealToPoopGaps.push(diffMinutes);
+            }
+            lastMealTime = null; // Reset until next meal
+        }
+    });
+
+    if (mealToPoopGaps.length > 0) {
+        const avgGap = mealToPoopGaps.reduce((sum, val) => sum + val, 0) / mealToPoopGaps.length;
+        const hours = Math.floor(avgGap / 60);
+        const mins = Math.floor(avgGap % 60);
+        insights.mealToPoop.innerText = hours > 0
+            ? `~${hours}h ${mins}m after eating`
+            : `~${mins}m after eating`;
+    } else {
+        insights.mealToPoop.innerText = "Not enough contiguous data";
+    }
+
+    // 2. Typical Times
+    function getMostCommonHour(actionName) {
+        const hourBins = new Array(24).fill(0);
+
+        filteredData.forEach(item => {
+            if (item.action === actionName && item.timeDecimal !== null) {
+                const hour = Math.floor(item.timeDecimal);
+                hourBins[hour]++;
+            }
+        });
+
+        const maxCount = Math.max(...hourBins);
+        if (maxCount === 0) return "N/A";
+
+        const peakHour = hourBins.indexOf(maxCount);
+        const nextHour = (peakHour + 1) % 24;
+        return `${peakHour.toString().padStart(2, '0')}:00 - ${nextHour.toString().padStart(2, '0')}:00`;
+    }
+
+    insights.commonPoop.innerText = getMostCommonHour('קקי');
+    insights.commonPee.innerText = getMostCommonHour('פיפי');
+}
+
+// ============================================================================
 // Time Distribution Chart (Histogram)
 // ============================================================================
 function renderTimeChart(filteredData) {
