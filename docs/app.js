@@ -346,9 +346,9 @@ function calculateInsights(filteredData) {
             const diffMs = item.timestamp - lastWalkTime;
             const diffMinutes = Math.floor(diffMs / (1000 * 60));
 
-            // Assume the walk "trip" only lasts 15 minutes.
-            // If the activity happened within 15 mins of the walk starting, it occurred ON the trip.
-            if (diffMinutes >= 0 && diffMinutes <= 15) {
+            // Assume the walk "trip" only lasts 30 minutes.
+            // If the activity happened within 30 mins of the walk starting, it occurred ON the trip.
+            if (diffMinutes >= 0 && diffMinutes <= 30) {
                 if (item.action === 'פיפי') tripToPeeGaps.push(diffMinutes);
                 if (item.action === 'קקי') tripToPoopGaps.push(diffMinutes);
             }
