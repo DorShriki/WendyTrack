@@ -16,6 +16,9 @@ const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR
 // Webhook URL from Google Apps Script to write data
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7CoC0LOCqnw6FgUEGD7RcJQkmiSo08KlXiExwxpOGTLGgYbEFy8IAbadADUG5CSYI/exec';
 
+// Secret Code for showing Quick Actions
+const AUTH_SECRET = 'wendy162534';
+
 // Global Variables
 let chartInstance = null;
 let timeChartInstance = null;
@@ -55,6 +58,26 @@ const els = {
 // Initialization & Event Listeners
 // ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Check URL Authentication
+    const urlParams = new URLSearchParams(window.location.search);
+    const authParam = urlParams.get('auth');
+
+    // If the secret code matches, save it to local storage permanently
+    if (authParam === AUTH_SECRET) {
+        localStorage.setItem('wendyTrackAuth', 'true');
+        // Clean up the URL so the secret isn't visible in the history or address bar
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Check if the device is authenticated
+    const isAuthorized = localStorage.getItem('wendyTrackAuth') === 'true';
+    const quickActionsPanel = document.getElementById('quick-actions-panel');
+
+    if (isAuthorized && quickActionsPanel) {
+        // Unhide the quick actions for the admin
+        quickActionsPanel.classList.remove('hidden');
+    }
+
     if (!GOOGLE_SHEET_CSV_URL) {
         setupWarning.classList.remove('hidden');
         return;
