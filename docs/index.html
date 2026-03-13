@@ -30,6 +30,25 @@
             <p>Please add your Google Sheet CSV "Publish to Web" URL to the <code>app.js</code> file.</p>
         </div>
 
+        <!-- Quick Actions -->
+        <section class="quick-actions glass-panel">
+            <h2>⚡ Quick Log</h2>
+            <div class="action-buttons">
+                <button class="action-btn walk-btn" data-action="טיול">
+                    <span class="icon">🦮</span> טיול (Walk)
+                </button>
+                <button class="action-btn pee-btn" data-action="פיפי">
+                    <span class="icon">🚰</span> פיפי (Pee)
+                </button>
+                <button class="action-btn poop-btn" data-action="קקי">
+                    <span class="icon">💩</span> קקי (Poop)
+                </button>
+                <button class="action-btn food-btn" data-action="אוכל">
+                    <span class="icon">🦴</span> אוכל (Food)
+                </button>
+            </div>
+        </section>
+
         <!-- Controls -->
         <section class="controls glass-panel">
             <div class="filter-group">
@@ -152,6 +171,21 @@
         <footer>
             <p>WendyTrack Dashboard &copy; 2026</p>
         </footer>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="action-modal" class="modal-overlay hidden">
+        <div class="modal glass-panel">
+            <h2 id="modal-title">Confirm Action</h2>
+            <p>Please confirm the time for this log:</p>
+            <div class="modal-body">
+                <input type="time" id="modal-time-input" class="time-input">
+            </div>
+            <div class="modal-actions">
+                <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
+                <button id="modal-confirm" class="btn btn-primary">Confirm Log</button>
+            </div>
+        </div>
     </div>
 
     <!-- Application Logic -->

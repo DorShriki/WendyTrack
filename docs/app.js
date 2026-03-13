@@ -13,6 +13,9 @@
 // 4. Click Publish and paste the link below:
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRndYhMdzPabGCTLneqVebw9r0II-iPdNWuSJG02VFiPneHotbX6WKWq3q3l6QmBfmdfvVV-OzS1kcj/pub?output=csv'; // <-- PASTE URL HERE
 
+// Webhook URL from Google Apps Script to write data
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7CoC0LOCqnw6FgUEGD7RcJQkmiSo08KlXiExwxpOGTLGgYbEFy8IAbadADUG5CSYI/exec';
+
 // Global Variables
 let chartInstance = null;
 let timeChartInstance = null;
@@ -22,6 +25,14 @@ let allData = []; // Will hold the parsed CSV data
 const timeFilter = document.getElementById('time-filter');
 const refreshBtn = document.getElementById('refresh-btn');
 const setupWarning = document.getElementById('setup-warning');
+
+// Quick Action Modal Elements
+const actionModal = document.getElementById('action-modal');
+const modalTitle = document.getElementById('modal-title');
+const modalTimeInput = document.getElementById('modal-time-input');
+const modalCancelBtn = document.getElementById('modal-cancel');
+const modalConfirmBtn = document.getElementById('modal-confirm');
+let currentPendingAction = null;
 
 // Insight Elements
 const insights = {
@@ -62,6 +73,26 @@ document.addEventListener('DOMContentLoaded', () => {
             refreshBtn.innerText = originalText;
         });
     });
+
+    // Event Listeners for Quick Action Buttons
+    const actionButtons = document.querySelectorAll('.action-btn');
+    actionButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const actionType = btn.getAttribute('data-action');
+            openActionModal(actionType);
+        });
+    });
+
+    // Event Listeners for Modal
+    modalCancelBtn.addEventListener('click', closeActionModal);
+    modalConfirmBtn.addEventListener('click', submitActionLog);
+
+    // Close modal on clicking outside
+    actionModal.addEventListener('click', (e) => {
+        if (e.target === actionModal) {
+            closeActionModal();
+        }
+    });
 });
 
 // ============================================================================
@@ -80,6 +111,93 @@ async function fetchDataAndRender() {
     } catch (error) {
         console.error('Error fetching Google Sheet Data:', error);
         alert('Failed to load data from Google Sheets. Ensure the link is correct and published to the web.');
+    }
+}
+
+// ============================================================================
+// Quick Actions Logic
+// ============================================================================
+
+function openActionModal(actionType) {
+    currentPendingAction = actionType;
+
+    // Set title correctly
+    let icon = '';
+    let englishName = '';
+    if (actionType === 'טיול') { icon = '🦮'; englishName = 'Walk'; }
+    if (actionType === 'פיפי') { icon = '🚰'; englishName = 'Pee'; }
+    if (actionType === 'קקי') { icon = '💩'; englishName = 'Poop'; }
+    if (actionType === 'אוכל') { icon = '🦴'; englishName = 'Food'; }
+
+    modalTitle.innerHTML = `${icon} Log ${englishName}`;
+
+    // Get current local time and set it in the input (HH:MM)
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    modalTimeInput.value = `${hours}:${minutes}`;
+
+    // Show modal
+    actionModal.classList.remove('hidden');
+}
+
+function closeActionModal() {
+    actionModal.classList.add('hidden');
+    currentPendingAction = null;
+}
+
+async function submitActionLog() {
+    if (!currentPendingAction) return;
+
+    const selectedTime = modalTimeInput.value; // Format: "HH:MM"
+    if (!selectedTime) {
+        alert("Please select a valid time.");
+        return;
+    }
+
+    // Disable button to prevent double submission
+    modalConfirmBtn.disabled = true;
+    modalConfirmBtn.innerText = "⏳ Logging...";
+
+    // Construct the data exactly as the app script expects it
+    const today = new Date();
+    const dateStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+    const loggedAtStr = today.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' });
+
+    const payload = {
+        dateStr: dateStr,
+        timeValue: selectedTime,
+        keyword: currentPendingAction,
+        loggedAtStr: loggedAtStr
+    };
+
+    try {
+        const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+            method: 'POST',
+            // Google Apps Script usually requires no-cors for simple requests from browser or handles CORS natively if setup correct
+            // Using text/plain actually bypasses the strict CORS preflight, but sending JSON content
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        // Close Modal & Reset State
+        closeActionModal();
+
+        // Show success and reload data
+        refreshBtn.innerText = '✅ Success!';
+        setTimeout(() => refreshBtn.innerText = '🔄 Refresh Data', 3000);
+
+        // Soft refresh the dashboard
+        fetchDataAndRender();
+
+    } catch (error) {
+        console.error("Failed to log action:", error);
+        alert("Error logging the action. Check your internet connection or the Google Apps Script URL.");
+    } finally {
+        modalConfirmBtn.disabled = false;
+        modalConfirmBtn.innerText = "Confirm Log";
     }
 }
 
