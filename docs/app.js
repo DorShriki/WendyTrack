@@ -78,6 +78,26 @@ document.addEventListener('DOMContentLoaded', () => {
         quickActionsPanel.classList.remove('hidden');
     }
 
+    // Secret Login for iOS Home Screen App
+    const authLockBtn = document.getElementById('auth-lock-btn');
+    if (authLockBtn) {
+        // If already authorized, hide the lock so it doesn't clutter the UI
+        if (isAuthorized) {
+            authLockBtn.style.display = 'none';
+        } else {
+            authLockBtn.addEventListener('click', () => {
+                const code = prompt('Enter Admin Code:');
+                if (code === AUTH_SECRET) {
+                    localStorage.setItem('wendyTrackAuth', 'true');
+                    alert('Unlocked! 🔓');
+                    window.location.reload();
+                } else if (code) {
+                    alert('Incorrect code. ❌');
+                }
+            });
+        }
+    }
+
     if (!GOOGLE_SHEET_CSV_URL) {
         setupWarning.classList.remove('hidden');
         return;
