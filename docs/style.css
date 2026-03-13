@@ -487,3 +487,15 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     cursor: not-allowed;
     transform: none;
 }
+
+/* ==========================================================================
+   Last Time Stats
+   ========================================================================== */
+.last-time {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    font-weight: 500;
+    opacity: 0.9;
+}

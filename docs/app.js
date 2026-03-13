@@ -45,10 +45,10 @@ const insights = {
 
 // Metric Elements
 const els = {
-    poop: { total: document.getElementById('total-poop'), avg: document.getElementById('avg-poop') },
-    pee: { total: document.getElementById('total-pee'), avg: document.getElementById('avg-pee') },
-    food: { total: document.getElementById('total-food'), avg: document.getElementById('avg-food') },
-    walk: { total: document.getElementById('total-walk'), avg: document.getElementById('avg-walk') }
+    poop: { total: document.getElementById('total-poop'), avg: document.getElementById('avg-poop'), last: document.getElementById('last-poop') },
+    pee: { total: document.getElementById('total-pee'), avg: document.getElementById('avg-pee'), last: document.getElementById('last-pee') },
+    food: { total: document.getElementById('total-food'), avg: document.getElementById('avg-food'), last: document.getElementById('last-food') },
+    walk: { total: document.getElementById('total-walk'), avg: document.getElementById('avg-walk'), last: document.getElementById('last-walk') }
 };
 
 // ============================================================================
@@ -269,6 +269,8 @@ function updateDashboard(data) {
     // Structure: { '10/03/2026': { 'קקי': 2, 'פיפי': 5 } }
     const dailyStats = {};
     const actionTotals = { 'קקי': 0, 'פיפי': 0, 'אוכל': 0, 'טיול': 0 };
+    // Track the most recent timestamp for each action
+    const lastSeen = { 'קקי': null, 'פיפי': null, 'אוכל': 0, 'טיול': null };
 
     filteredData.forEach(item => {
         const d = item.dateStr;
@@ -281,16 +283,18 @@ function updateDashboard(data) {
         if (dailyStats[d][a] !== undefined) {
             dailyStats[d][a]++;
             actionTotals[a]++;
+            // Data is sorted oldest to newest, so the last one we see is the most recent
+            lastSeen[a] = item.timestamp;
         }
     });
 
     const uniqueDaysCount = Object.keys(dailyStats).length || 1; // Prevent divide by zero
 
     // Update Metric Cards
-    updateMetricCard(els.poop, actionTotals['קקי'], uniqueDaysCount);
-    updateMetricCard(els.pee, actionTotals['פיפי'], uniqueDaysCount);
-    updateMetricCard(els.food, actionTotals['אוכל'], uniqueDaysCount);
-    updateMetricCard(els.walk, actionTotals['טיול'], uniqueDaysCount);
+    updateMetricCard(els.poop, actionTotals['קקי'], uniqueDaysCount, lastSeen['קקי']);
+    updateMetricCard(els.pee, actionTotals['פיפי'], uniqueDaysCount, lastSeen['פיפי']);
+    updateMetricCard(els.food, actionTotals['אוכל'], uniqueDaysCount, lastSeen['אוכל']);
+    updateMetricCard(els.walk, actionTotals['טיול'], uniqueDaysCount, lastSeen['טיול']);
 
     // Calculate Smart Insights
     calculateInsights(filteredData);
@@ -300,10 +304,49 @@ function updateDashboard(data) {
     renderTimeChart(filteredData);
 }
 
-function updateMetricCard(elements, total, daysCount) {
+function updateMetricCard(elements, total, daysCount, lastTimestamp) {
     elements.total.innerText = total;
     // Calculate average and round to 1 decimal place
     elements.avg.innerText = (total / daysCount).toFixed(1);
+
+    // Set Last Seen
+    if (elements.last) {
+        elements.last.innerText = lastTimestamp ? formatRelativeTime(lastTimestamp) : "N/A";
+    }
+}
+
+/**
+ * Formats a timestamp into a human-readable relative time (e.g., "Today, 14:30")
+ */
+function formatRelativeTime(timestamp) {
+    if (!timestamp) return "N/A";
+
+    const date = new Date(timestamp);
+    const now = new Date();
+
+    const isToday = date.getDate() === now.getDate() &&
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear();
+
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const isYesterday = date.getDate() === yesterday.getDate() &&
+        date.getMonth() === yesterday.getMonth() &&
+        date.getFullYear() === yesterday.getFullYear();
+
+    const timeStr = date.toLocaleTimeString('he-IL', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+
+    if (isToday) return `Today, ${timeStr}`;
+    if (isYesterday) return `Yesterday, ${timeStr}`;
+
+    // Older dates: DD/MM, HH:MM
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${day}/${month}, ${timeStr}`;
 }
 
 // ============================================================================
