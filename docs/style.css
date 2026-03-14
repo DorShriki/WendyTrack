@@ -328,7 +328,7 @@ footer {
         flex: 1;
         width: 100%;
     }
-    
+
     .btn {
         width: 100%;
         text-align: center;
@@ -399,6 +399,7 @@ footer {
         width: 95%;
     }
 }
+
 /* ==========================================================================
    Quick Actions & Modal
    ========================================================================== */
@@ -439,7 +440,7 @@ footer {
 .action-btn .icon {
     font-size: 2rem;
     margin-bottom: 0.5rem;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .action-btn:hover {
@@ -535,6 +536,17 @@ footer {
     color: var(--text-primary);
     font-family: inherit;
     transition: border-color 0.2s;
+
+    /* iOS/RTL Layout fixes */
+    direction: ltr;
+    /* Force left-to-right so it doesn't hug the right edge on Hebrew iPhones */
+    display: block;
+    box-sizing: border-box;
+}
+
+/* Force inner text to align center on iOS Safari */
+.time-input::-webkit-date-and-time-value {
+    text-align: center;
 }
 
 .time-input:focus {
