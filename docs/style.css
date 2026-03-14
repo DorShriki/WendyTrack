@@ -528,7 +528,9 @@ footer {
 .time-input {
     width: 100%;
     padding: 1rem;
-    font-size: 1.5rem;
+    font-size: 2.5rem;
+    /* Increased size to make it undeniably centered and big */
+    font-weight: 700;
     text-align: center;
     background: rgba(15, 23, 42, 0.5);
     border: 2px solid rgba(255, 255, 255, 0.1);
@@ -537,27 +539,30 @@ footer {
     font-family: inherit;
     transition: border-color 0.2s;
 
-    /* iOS/RTL Layout fixes */
-    direction: ltr;
-    /* Force left-to-right so it doesn't hug the right edge on Hebrew iPhones */
+    /* Strict Centering Overrides */
+    appearance: none;
+    -webkit-appearance: none;
     display: block;
     box-sizing: border-box;
+    margin: 0 auto;
 }
 
-/* Force inner text to align center on iOS Safari */
+/* Force iOS Safari to perfectly center the time text by removing internal padding */
 .time-input::-webkit-date-and-time-value {
     text-align: center;
+    margin: 0;
+}
+
+/* Completely hide the invisible calendar icon on iOS that pushes text off-center */
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-clear-button {
+    display: none !important;
+    -webkit-appearance: none !important;
 }
 
 .time-input:focus {
     outline: none;
     border-color: var(--accent-light);
-}
-
-/* Chrome, Safari, Edge, Opera */
-input[type="time"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-    cursor: pointer;
 }
 
 .modal-actions {
